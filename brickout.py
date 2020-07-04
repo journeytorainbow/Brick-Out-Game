@@ -1,0 +1,144 @@
+import sys, pygame, math, random
+from pygame.locals import *
+
+pygame.init()
+width, height = 600, 800
+screen = pygame.display.set_mode((width, height))
+FPS = 60
+fpsClock = pygame.time.Clock()
+
+GRAY = (204, 204, 204)
+MINT = (51, 255, 255)
+PINK = (255, 000, 204)
+RED = (255, 51, 51)
+YELLOW = (255, 255, 102)
+GREEN = (153, 255, 153)
+BLUE = (51, 51, 255)
+PURPLE = (102, 51, 255)
+WHITE = (255, 255, 255)
+
+class Item:
+    def __init__(self, color, rect):
+        self.color = color
+        self.rect = rect
+
+    def draw_rect(self):
+        pygame.draw.rect(screen, self.color, self.rect)
+    
+    def draw_ellipse(self):
+        pygame.draw.ellipse(screen, self.color, self.rect)
+
+class Ball(Item):
+    def __init__(self, color, rect):
+        super().__init__(color, rect)
+        self.speed = 10
+        self.dir = random.randint(-45, 45) + 270
+    
+    def move(self):
+        self.rect.centerx += math.cos(math.radians(self.dir)) * self.speed
+        self.rect.centery -= math.sin(math.radians(self.dir)) * self.speed
+
+blocks = []
+paddle = Item(GRAY, Rect(300, 700, 150, 20))
+ball = Ball(GRAY, Rect(300, 400, 20, 20))
+
+def collide():
+    global blocks
+
+    if ball.rect.centery < 1000:
+        ball.move()
+
+    # 블록과 충돌
+    prev_len = len(blocks)
+    blocks = [block for block in blocks if not block.rect.colliderect(ball.rect)]
+    if len(blocks) != prev_len:
+        ball.dir = -ball.dir
+
+    # 패들과 충돌
+    if paddle.rect.colliderect(ball.rect):
+        ball.dir = 90 + (paddle.rect.centerx - ball.rect.centerx) / paddle.rect.width * 80
+    
+    # 양 옆 벽면과 충돌
+    if ball.rect.centerx < 0 or ball.rect.centerx > width:
+        ball.dir = 180 - ball.dir
+    # 천장과 충돌
+    if ball.rect.centery < 0:
+        ball.dir = -ball.dir
+        ball.speed = 12
+
+def main():
+    keys = [False]*2
+    
+    font1 = pygame.font.SysFont("Impact", 80)
+    font2 = pygame.font.SysFont("Impact", 30)
+
+    clear = font1.render("Cleared!!", True, MINT)
+    textRect1 = clear.get_rect(center=(width/2, height/2))
+    over = font1.render("Game Over!!", True, PINK)
+    textRect2 = over.get_rect(center=(width/2, height/2))
+    replay = font2.render("Replay[ Press spacebar ]", True, WHITE)
+    textRect3 = replay.get_rect(center=(width/2, height/2 + 100))
+    tryagain = font2.render("Try Again!![ Press spacebar ]", True, WHITE)
+    textRect4 = tryagain.get_rect(center=(width/2, height/2 + 100))
+
+    colors = [RED, YELLOW, GREEN, BLUE, PURPLE]
+    for ypos, color in enumerate(colors, start = 0):
+        for xpos in range(0, 5):
+            blocks.append(Item(color, Rect(xpos*130, ypos*60 + 30, 80, 30)))
+
+    running = True
+    while running:
+        screen.fill(0)
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == KEYDOWN:
+                if event.key == K_LEFT:
+                    keys[0] = True
+                elif event.key == K_RIGHT:
+                    keys[1] = True
+            elif event.type == KEYUP:
+                if event.key == K_LEFT:
+                    keys[0] = False
+                elif event.key == K_RIGHT:
+                    keys[1] = False
+        if keys[0]:
+            if paddle.rect.centerx > paddle.rect.width/2:
+                paddle.rect.centerx -= 10
+        elif keys[1]:
+            if paddle.rect.centerx < width - paddle.rect.width/2:
+                paddle.rect.centerx += 10
+
+        collide()
+        ball.draw_ellipse()
+        paddle.draw_rect()
+        for block in blocks:
+            block.draw_rect()
+    
+        if len(blocks) == 0:
+            screen.fill(0)
+            screen.blit(clear, textRect1)
+            screen.blit(replay, textRect3)
+            running = False
+        elif ball.rect.centery >= height + ball.rect.height/2:
+            screen.fill(0)
+            screen.blit(over, textRect2)
+            screen.blit(tryagain, textRect4)
+            running = False
+
+        pygame.display.flip()
+        fpsClock.tick(FPS)
+
+main()
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == KEYDOWN and event.key == K_SPACE:
+            blocks = []
+            paddle = Item(GRAY, Rect(300, 700, 150, 20))
+            ball = Ball(GRAY, Rect(300, 400, 20, 20))
+            main()
