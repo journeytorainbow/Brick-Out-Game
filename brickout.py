@@ -17,6 +17,9 @@ BLUE = (51, 51, 255)
 PURPLE = (102, 51, 255)
 WHITE = (255, 255, 255)
 
+max_speed = 14
+min_speed = 10
+
 class Item:
     def __init__(self, color, rect):
         self.color = color
@@ -31,7 +34,7 @@ class Item:
 class Ball(Item):
     def __init__(self, color, rect):
         super().__init__(color, rect)
-        self.speed = 10
+        self.speed = min_speed
         self.dir = random.randint(-45, 45) + 270
     
     def move(self):
@@ -64,7 +67,8 @@ def collide():
     # 천장과 충돌
     if ball.rect.centery < 0:
         ball.dir = -ball.dir
-        ball.speed = 12
+        if ball.speed < max_speed:
+            ball.speed += 1
 
 def main():
     keys = [False]*2
@@ -99,6 +103,12 @@ def main():
                     keys[0] = True
                 elif event.key == K_RIGHT:
                     keys[1] = True
+                if event.key == K_f:
+                    if ball.speed < max_speed - 1:
+                        ball.speed += 1
+                elif event.key == K_d:
+                    if ball.speed > min_speed:
+                        ball.speed -= 1
             elif event.type == KEYUP:
                 if event.key == K_LEFT:
                     keys[0] = False
