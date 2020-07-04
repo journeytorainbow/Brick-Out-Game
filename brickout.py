@@ -41,6 +41,15 @@ class Ball(Item):
         self.rect.centerx += math.cos(math.radians(self.dir)) * self.speed
         self.rect.centery -= math.sin(math.radians(self.dir)) * self.speed
 
+class Text():
+    def __init__(self, string, color, font, pos):
+        self.string = string
+        self.color = color
+        self.font = font
+        self.pos = pos
+        self.textrender = self.font.render(self.string, True, self.color)
+        self.textrect = self.textrender.get_rect(center=self.pos)
+
 blocks = []
 paddle = Item(GRAY, Rect(300, 700, 150, 20))
 ball = Ball(GRAY, Rect(300, 400, 20, 20))
@@ -76,14 +85,10 @@ def main():
     font1 = pygame.font.SysFont("Impact", 80)
     font2 = pygame.font.SysFont("Impact", 30)
 
-    clear = font1.render("Cleared!!", True, MINT)
-    textRect1 = clear.get_rect(center=(width/2, height/2))
-    over = font1.render("Game Over!!", True, PINK)
-    textRect2 = over.get_rect(center=(width/2, height/2))
-    replay = font2.render("Replay[ Press spacebar ]", True, WHITE)
-    textRect3 = replay.get_rect(center=(width/2, height/2 + 100))
-    tryagain = font2.render("Try Again!![ Press spacebar ]", True, WHITE)
-    textRect4 = tryagain.get_rect(center=(width/2, height/2 + 100))
+    clear = Text("Cleared!!", MINT, font1, (width/2, height/2))
+    over = Text("Game Over!!", PINK, font1, (width/2, height/2))
+    replay = Text("Replay [Press spacebar]", WHITE, font2, (width/2, height/2 + 100))
+    tryagain = Text("Try Again!! [Press spacebar]", WHITE, font2, (width/2, height/2 + 100))
 
     colors = [RED, YELLOW, GREEN, BLUE, PURPLE]
     for ypos, color in enumerate(colors, start = 0):
@@ -129,13 +134,13 @@ def main():
     
         if len(blocks) == 0:
             screen.fill(0)
-            screen.blit(clear, textRect1)
-            screen.blit(replay, textRect3)
+            screen.blit(clear.textrender, clear.textrect)
+            screen.blit(replay.textrender, replay.textrect)
             running = False
         elif ball.rect.centery >= height + ball.rect.height/2:
             screen.fill(0)
-            screen.blit(over, textRect2)
-            screen.blit(tryagain, textRect4)
+            screen.blit(over.textrender, over.textrect)
+            screen.blit(tryagain.textrender, tryagain.textrect)
             running = False
 
         pygame.display.flip()
