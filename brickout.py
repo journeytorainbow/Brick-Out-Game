@@ -88,11 +88,13 @@ def main():
     font1 = pygame.font.SysFont("Impact", 80)
     font2 = pygame.font.SysFont("Impact", 30)
     font3 = pygame.font.SysFont("Impact", 23)
+    font4 =  pygame.font.SysFont("Impact", 40)
 
     clear = Text("Cleared!!", MINT, font1, (width/2, height/2))
     over = Text("Game Over!!", PINK, font1, (width/2, height/2))
-    replay = Text("Replay [Press spacebar]", WHITE, font2, (width/2, height/2 + 100))
+    replay = Text("Replay [Press spacebar]", WHITE, font2, (width/2, height/2 + 140))
     tryagain = Text("Try Again!! [Press spacebar]", WHITE, font2, (width/2, height/2 + 100))
+    congrats = Text("Wow! Congratulations!", PINK, font4, (width/2, height/2 + 70))
 
     colors = [RED, YELLOW, GREEN, BLUE, PURPLE]
     for ypos, color in enumerate(colors, start = 0):
@@ -164,6 +166,7 @@ def main():
     if win:
         screen.blit(clear.textrender, clear.textrect)
         screen.blit(replay.textrender, replay.textrect)
+        screen.blit(congrats.textrender, congrats.textrect)
     else:
         screen.blit(over.textrender, over.textrect)
         screen.blit(tryagain.textrender, tryagain.textrect)
