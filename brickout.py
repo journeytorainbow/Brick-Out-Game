@@ -53,9 +53,11 @@ class Text():
 blocks = []
 paddle = Item(GRAY, Rect(300, 700, 150, 20))
 ball = Ball(GRAY, Rect(300, 400, 20, 20))
+score = 0
+record = []
 
 def collide():
-    global blocks
+    global blocks, score
 
     if ball.rect.centery < 1000:
         ball.move()
@@ -65,6 +67,7 @@ def collide():
     blocks = [block for block in blocks if not block.rect.colliderect(ball.rect)]
     if len(blocks) != prev_len:
         ball.dir = -ball.dir
+        score += 10
 
     # 패들과 충돌
     if paddle.rect.colliderect(ball.rect):
@@ -98,6 +101,8 @@ def main():
     running = True
     while running:
         screen.fill(0)
+        score_text = Text("score: " + str(score), WHITE, font2, (80, height - 30))
+        screen.blit(score_text.textrender, score_text.textrect)
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -156,4 +161,5 @@ while True:
             blocks = []
             paddle = Item(GRAY, Rect(300, 700, 150, 20))
             ball = Ball(GRAY, Rect(300, 400, 20, 20))
+            score = 0
             main()
