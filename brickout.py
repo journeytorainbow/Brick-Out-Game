@@ -17,6 +17,8 @@ BLUE = (51, 51, 255)
 PURPLE = (102, 51, 255)
 WHITE = (255, 255, 255)
 
+heart = pygame.image.load("resources/images/heart.png")
+
 max_speed = 14
 min_speed = 10
 
@@ -84,6 +86,7 @@ def collide():
 
 def main():
     keys = [False]*2
+    lives = [heart]*3
     
     font1 = pygame.font.SysFont("Impact", 80)
     font2 = pygame.font.SysFont("Impact", 30)
@@ -103,6 +106,8 @@ def main():
         screen.fill(0)
         score_text = Text("score: " + str(score), WHITE, font2, (80, height - 30))
         screen.blit(score_text.textrender, score_text.textrect)
+        for xpos, life in enumerate(lives, start = 1):
+            screen.blit(life, (width - life.get_width() * xpos, height - life.get_height()))
 
         for event in pygame.event.get():
             if event.type == QUIT:
