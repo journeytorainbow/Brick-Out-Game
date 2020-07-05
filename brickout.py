@@ -87,6 +87,7 @@ def main():
 
     font1 = pygame.font.SysFont("Impact", 80)
     font2 = pygame.font.SysFont("Impact", 30)
+    font3 = pygame.font.SysFont("Impact", 23)
 
     clear = Text("Cleared!!", MINT, font1, (width/2, height/2))
     over = Text("Game Over!!", PINK, font1, (width/2, height/2))
@@ -159,12 +160,17 @@ def main():
         fpsClock.tick(FPS)
 
     screen.fill(0)
+    record.append(score)
     if win:
         screen.blit(clear.textrender, clear.textrect)
         screen.blit(replay.textrender, replay.textrect)
     else:
         screen.blit(over.textrender, over.textrect)
         screen.blit(tryagain.textrender, tryagain.textrect)
+        current_score = Text("Current Score : " + str(score), MINT, font3, (width/2, height/2 + 180))
+        best_score = Text("Best Score : " + str(max(record)), YELLOW, font3, (width/2, height/2 + 220))
+        screen.blit(best_score.textrender, best_score.textrect)
+        screen.blit(current_score.textrender, current_score.textrect)
     
     pygame.display.flip()
 
