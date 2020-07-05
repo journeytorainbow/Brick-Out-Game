@@ -61,9 +61,6 @@ record = []
 def collide():
     global blocks, score
 
-    if ball.rect.centery < 1000:
-        ball.move()
-
     # 블록과 충돌
     prev_len = len(blocks)
     blocks = [block for block in blocks if not block.rect.colliderect(ball.rect)]
@@ -87,7 +84,7 @@ def collide():
 def main():
     keys = [False]*2
     lives = [heart]*3
-    
+
     font1 = pygame.font.SysFont("Impact", 80)
     font2 = pygame.font.SysFont("Impact", 30)
 
@@ -102,6 +99,7 @@ def main():
             blocks.append(Item(color, Rect(xpos*130, ypos*60 + 30, 80, 30)))
 
     running = True
+    win = False
     while running:
         screen.fill(0)
         score_text = Text("score: " + str(score), WHITE, font2, (80, height - 30))
@@ -136,25 +134,39 @@ def main():
             if paddle.rect.centerx < width - paddle.rect.width/2:
                 paddle.rect.centerx += 10
 
+        if lives:
+            if ball.rect.centery < 1000:
+                ball.move()
+                if len(blocks) == 0:
+                    win = True
+                    running = False
+            else:
+                lives.pop()
+                ball.rect = Rect(300, 400, 20, 20)
+                ball.dir = random.randint(-45, 45) + 270
+                ball.speed = min_speed
+                ball.move()
+        else:
+            running = False
+
         collide()
         ball.draw_ellipse()
         paddle.draw_rect()
         for block in blocks:
             block.draw_rect()
     
-        if len(blocks) == 0:
-            screen.fill(0)
-            screen.blit(clear.textrender, clear.textrect)
-            screen.blit(replay.textrender, replay.textrect)
-            running = False
-        elif ball.rect.centery >= height + ball.rect.height/2:
-            screen.fill(0)
-            screen.blit(over.textrender, over.textrect)
-            screen.blit(tryagain.textrender, tryagain.textrect)
-            running = False
-
         pygame.display.flip()
         fpsClock.tick(FPS)
+
+    screen.fill(0)
+    if win:
+        screen.blit(clear.textrender, clear.textrect)
+        screen.blit(replay.textrender, replay.textrect)
+    else:
+        screen.blit(over.textrender, over.textrect)
+        screen.blit(tryagain.textrender, tryagain.textrect)
+    
+    pygame.display.flip()
 
 main()
 while True:
