@@ -11,9 +11,12 @@ GRAY = (204, 204, 204)
 MINT = (51, 255, 255)
 PINK = (255, 000, 204)
 RED = (255, 51, 51)
+RED2 = (255, 102, 102)
 YELLOW = (255, 255, 102)
 GREEN = (153, 255, 153)
 BLUE = (51, 51, 255)
+NAVY = (51, 51, 102)
+NAVY2 = (000, 000, 102)
 PURPLE = (102, 51, 255)
 WHITE = (255, 255, 255)
 OLIVE = (102, 102, 000)
@@ -110,14 +113,15 @@ def main():
     congrats = Text("Wow! Congratulations!", PINK, font4, (width/2, height/2 + 70))
 
     # 0번째 원소 = 일반 블럭 컬러, 1번째 원소 = 특수 블럭 컬러
-    colors = [(RED, YELLOW, GREEN, BLUE, PURPLE), (OLIVE, SALMON)]
+    colors = [(RED, RED2, YELLOW, GREEN, NAVY, NAVY2, BLUE, PURPLE), (OLIVE, SALMON)]
     for ypos, color in enumerate(colors[0], start = 0):
-        for xpos in range(0, len(colors[0])):
+        # 한줄에 블록 다섯개로 고정
+        for xpos in range(0, 5):
             blocks.append(Item(color, Rect(xpos*130, ypos*60 + 30, 80, 30)))
 
     # 특수 블록을 랜덤한 위치에 배치
     for color in colors[1]:
-        num = random.randint(0, len(colors[0])**2-1)
+        num = random.randint(0, 5*len(colors[0])-1)
         blocks[num].color = color
 
     running = True
