@@ -16,8 +16,12 @@ GREEN = (153, 255, 153)
 BLUE = (51, 51, 255)
 PURPLE = (102, 51, 255)
 WHITE = (255, 255, 255)
+OLIVE = (102, 102, 000)
+SALMON = (204, 153, 153)
 
 heart = pygame.image.load("resources/images/heart.png")
+blind = pygame.image.load("resources/images/blind.png")
+blind2 = pygame.image.load("resources/images/blind2.png")
 
 max_speed = 14
 min_speed = 10
@@ -57,13 +61,22 @@ paddle = Item(GRAY, Rect(300, 700, 150, 20))
 ball = Ball(GRAY, Rect(300, 400, 20, 20))
 score = 0
 record = []
+obstacles = []
+timers = [] # 장애물 타이머
 
-def collide():
-    global blocks, score
+def collide(colors):
+    global blocks, score, obstacles, timers
 
     # 블록과 충돌
     prev_len = len(blocks)
-    blocks = [block for block in blocks if not block.rect.colliderect(ball.rect)]
+    for block in blocks:
+        if block.rect.colliderect(ball.rect):
+            # 장애물 블록과 충돌
+            if block.color in colors:
+                obstacles.append(block)
+                timers.append(1)
+            blocks.remove(block)
+ 
     if len(blocks) != prev_len:
         ball.dir = -ball.dir
         score += 10
@@ -96,10 +109,16 @@ def main():
     tryagain = Text("Try Again!! [Press spacebar]", WHITE, font2, (width/2, height/2 + 100))
     congrats = Text("Wow! Congratulations!", PINK, font4, (width/2, height/2 + 70))
 
-    colors = [RED, YELLOW, GREEN, BLUE, PURPLE]
-    for ypos, color in enumerate(colors, start = 0):
-        for xpos in range(0, 5):
+    # 0번째 원소 = 일반 블럭 컬러, 1번째 원소 = 특수 블럭 컬러
+    colors = [(RED, YELLOW, GREEN, BLUE, PURPLE), (OLIVE, SALMON)]
+    for ypos, color in enumerate(colors[0], start = 0):
+        for xpos in range(0, len(colors[0])):
             blocks.append(Item(color, Rect(xpos*130, ypos*60 + 30, 80, 30)))
+
+    # 특수 블록을 랜덤한 위치에 배치
+    for color in colors[1]:
+        num = random.randint(0, len(colors[0])**2-1)
+        blocks[num].color = color
 
     running = True
     win = False
@@ -152,12 +171,29 @@ def main():
         else:
             running = False
 
-        collide()
+        collide(colors[1])
         ball.draw_ellipse()
         paddle.draw_rect()
         for block in blocks:
-            block.draw_rect()
-    
+            if block.color in colors[1]:
+                block.draw_ellipse()
+            else:
+                block.draw_rect()
+
+        for obstacle in obstacles:
+            if obstacle.color == colors[1][0]:
+                screen.blit(blind, (1/2*(width - blind.get_width()), 1/2*(height - blind.get_height())))
+            elif obstacle.color == colors[1][1]:
+                screen.blit(blind2, (1/2*(width - blind2.get_width()), 1/2*(height - blind2.get_height())))
+        
+        # 일정 시간이 지나면 장애물 제거
+        for i in range(len(timers)):
+            timers[i] += 1
+        for timer in timers:
+            if timer >= 200:
+                timers.remove(timer)
+                obstacles.pop(0)
+
         pygame.display.flip()
         fpsClock.tick(FPS)
 
@@ -188,4 +224,6 @@ while True:
             paddle = Item(GRAY, Rect(300, 700, 150, 20))
             ball = Ball(GRAY, Rect(300, 400, 20, 20))
             score = 0
+            timers = []
+            obstacles = []
             main()
