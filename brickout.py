@@ -35,6 +35,7 @@ key_img = pygame.image.load("resources/images/keys.png")
 
 max_speed = 14
 min_speed = 10
+displayed_speed = 1
 
 class Item:
     def __init__(self, color, rect):
@@ -88,7 +89,7 @@ obstacles = []
 timers = [] # 장애물 타이머
 
 def collide(colors):
-    global blocks, score, obstacles, timers
+    global blocks, score, obstacles, timers, displayed_speed
 
     # 블록과 충돌
     prev_len = len(blocks)
@@ -116,8 +117,10 @@ def collide(colors):
         ball.dir = -ball.dir
         if ball.speed < max_speed:
             ball.speed += 1
+            displayed_speed += 1
 
 def main():
+    global displayed_speed
     keys = [False]*2
     lives = [heart]*3
 
@@ -161,6 +164,8 @@ def main():
         screen.blit(controls, (900, 550))
         score_text = Text(str(score), WHITE, font5, (box1.rect.centerx, box1.rect.centery))
         screen.blit(score_text.textrender, score_text.textrect)
+        speed_text = Text("Speed : " + str(displayed_speed), YELLOW, font3, (box2.rect.centerx, box2.rect.centery + 40))
+        screen.blit(speed_text.textrender, speed_text.textrect)
         imgRect = key_img.get_rect(center = (box3.rect.centerx, box3.rect.centery))
         screen.blit(key_img, imgRect)
         for xpos, life in enumerate(lives, start = 1):
@@ -179,9 +184,11 @@ def main():
                 if event.key == K_f:
                     if ball.speed < max_speed - 1:
                         ball.speed += 1
+                        displayed_speed += 1
                 elif event.key == K_d:
                     if ball.speed > min_speed:
                         ball.speed -= 1
+                        displayed_speed -= 1
             elif event.type == KEYUP:
                 if event.key == K_LEFT:
                     keys[0] = False
@@ -212,6 +219,7 @@ def main():
                 ball.rect = Rect(ball_startpos)
                 ball.dir = random.randint(-45, 45) + 270 # 여기 숫자를 변경하면 공이 리젠 되는 타이밍 늦출 수 있음
                 ball.speed = min_speed
+                displayed_speed = 1
                 ball.move()
         else:
             running = False
@@ -274,4 +282,5 @@ while True:
             score = 0
             timers = []
             obstacles = []
+            displayed_speed = 1
             main()
