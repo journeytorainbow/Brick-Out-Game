@@ -233,7 +233,7 @@ def main():
             else:
                 lives.pop()
                 ball.rect = Rect(ball_startpos)
-                ball.dir = random.randint(-30, 30) + 270 # 여기 숫자를 변경하면 공이 리젠 되는 타이밍 늦출 수 있음
+                ball.dir = random.randint(-30, 30) + 270
                 ball.speed = min_speed
                 displayed_speed = 1
                 ball.move()
