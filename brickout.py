@@ -1,6 +1,7 @@
 import sys, pygame, math, random
 from pygame.locals import *
 
+pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.init()
 width, height = 850, 900 # 게임이 진행되는 실제 공간의 크기
 w, h = 1200, 1000 # 전체 화면 크기
@@ -32,6 +33,16 @@ score_img = pygame.image.load("resources/images/score.png")
 status = pygame.image.load("resources/images/status.png")
 controls = pygame.image.load("resources/images/controls.png")
 key_img = pygame.image.load("resources/images/keys.png")
+
+pygame.mixer.music.load("resources/audio/ContactHigh.wav")
+pygame.mixer.music.play(-1, 0.0)
+pygame.mixer.music.set_volume(0.3)
+hit1 = pygame.mixer.Sound("resources/audio/HitWood.wav") # 블록 충돌음
+hit2 = pygame.mixer.Sound("resources/audio/ChoppingLog.wav") # 벽면 충돌음
+hit3 = pygame.mixer.Sound("resources/audio/Pop.wav") # 패들 충돌음
+hit4 = pygame.mixer.Sound("resources/audio/Magic.wav") # 특수 블록 충돌음
+
+hit3.set_volume(0.5)
 
 max_speed = 14
 min_speed = 10
@@ -95,10 +106,12 @@ def collide(colors):
     prev_len = len(blocks)
     for block in blocks:
         if block.rect.colliderect(ball.rect):
+            hit1.play()
             # 장애물 블록과 충돌
             if block.color in colors:
                 obstacles.append(block)
                 timers.append(1)
+                hit4.play()
             blocks.remove(block)
  
     if len(blocks) != prev_len:
@@ -108,16 +121,19 @@ def collide(colors):
     # 패들과 충돌
     if paddle.rect.colliderect(ball.rect):
         ball.dir = 90 + (paddle.rect.centerx - ball.rect.centerx) / paddle.rect.width * 80
+        hit3.play()
     
     # 양 옆 벽면과 충돌
     if ball.rect.left == play_screen.rect.left or ball.rect.right == play_screen.rect.right:
         ball.dir = 180 - ball.dir
+        hit2.play()
     # 천장과 충돌
     if ball.rect.top == play_ypos:
         ball.dir = -ball.dir
         if ball.speed < max_speed:
             ball.speed += 1
             displayed_speed += 1
+        hit2.play()
 
 def main():
     global displayed_speed
