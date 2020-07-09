@@ -63,7 +63,7 @@ class Ball(Item):
     def __init__(self, color, rect):
         super().__init__(color, rect)
         self.speed = min_speed
-        self.dir = random.randint(-45, 45) + 270
+        self.dir = random.randint(-30, 30) + 270
     
     def move(self):
         self.rect.centerx += math.cos(math.radians(self.dir)) * self.speed
@@ -90,7 +90,7 @@ box3 = Item(BLACK, Rect(box_xpos, box_ypos + 2*(box_height + 70), box_width, box
 bottom_screen = Item(BLUE2, Rect(0, play_screen.rect.bottom, w, h - play_screen.rect.bottom))
 
 blocks = []
-paddle_startpos = (450, 850, 150, 20)
+paddle_startpos = (450, 870, 150, 20)
 ball_startpos = (450, 650, 20, 20)
 paddle = Item(GRAY, Rect(paddle_startpos))
 ball = Ball(GRAY, Rect(ball_startpos))
@@ -233,7 +233,7 @@ def main():
             else:
                 lives.pop()
                 ball.rect = Rect(ball_startpos)
-                ball.dir = random.randint(-45, 45) + 270 # 여기 숫자를 변경하면 공이 리젠 되는 타이밍 늦출 수 있음
+                ball.dir = random.randint(-30, 30) + 270 # 여기 숫자를 변경하면 공이 리젠 되는 타이밍 늦출 수 있음
                 ball.speed = min_speed
                 displayed_speed = 1
                 ball.move()
