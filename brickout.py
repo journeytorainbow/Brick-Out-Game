@@ -2,8 +2,9 @@ import sys, pygame, math, random
 from pygame.locals import *
 
 pygame.init()
-width, height = 600, 800
-screen = pygame.display.set_mode((width, height))
+width, height = 850, 900 # 게임이 진행되는 실제 공간의 크기
+w, h = 1200, 1000 # 전체 화면 크기
+screen = pygame.display.set_mode((w, h))
 FPS = 60
 fpsClock = pygame.time.Clock()
 
@@ -21,10 +22,16 @@ PURPLE = (102, 51, 255)
 WHITE = (255, 255, 255)
 OLIVE = (102, 102, 000)
 SALMON = (204, 153, 153)
+BLUE2 = (70, 70, 255) # 게임 백그라운드 컬러
+BLACK = (0, 0, 0) # 게임이 진행되는 실제 화면 컬러
 
 heart = pygame.image.load("resources/images/heart.png")
 blind = pygame.image.load("resources/images/blind.png")
 blind2 = pygame.image.load("resources/images/blind2.png")
+score_img = pygame.image.load("resources/images/score.png")
+status = pygame.image.load("resources/images/status.png")
+controls = pygame.image.load("resources/images/controls.png")
+key_img = pygame.image.load("resources/images/keys.png")
 
 max_speed = 14
 min_speed = 10
@@ -59,9 +66,22 @@ class Text():
         self.textrender = self.font.render(self.string, True, self.color)
         self.textrect = self.textrender.get_rect(center=self.pos)
 
+# 게임화면에서 검은색 사각형 공간에 해당하는 객체들 생성
+play_xpos, play_ypos = 50, 50 # 실제 게임이 플레이되는 공간의 topleft좌표
+play_screen = Item(BLACK, Rect(play_xpos, play_ypos, width, height))
+box_xpos, box_ypos = 950, 50 # 좌측 첫 번째 박스의 topleft 좌표 
+box_width, box_height = 200, 200
+box1 = Item(BLACK, Rect(box_xpos, box_ypos, box_width, box_height))
+box2 = Item(BLACK, Rect(box_xpos, (box_ypos + box_height) + 70, box_width, box_height))
+box3 = Item(BLACK, Rect(box_xpos, box_ypos + 2*(box_height + 70), box_width, box_height))
+# 백그라운드 화면 하단 가림용 사각형 객체
+bottom_screen = Item(BLUE2, Rect(0, play_screen.rect.bottom, w, h - play_screen.rect.bottom))
+
 blocks = []
-paddle = Item(GRAY, Rect(300, 700, 150, 20))
-ball = Ball(GRAY, Rect(300, 400, 20, 20))
+paddle_startpos = (450, 850, 150, 20)
+ball_startpos = (450, 650, 20, 20)
+paddle = Item(GRAY, Rect(paddle_startpos))
+ball = Ball(GRAY, Rect(ball_startpos))
 score = 0
 record = []
 obstacles = []
@@ -89,10 +109,10 @@ def collide(colors):
         ball.dir = 90 + (paddle.rect.centerx - ball.rect.centerx) / paddle.rect.width * 80
     
     # 양 옆 벽면과 충돌
-    if ball.rect.centerx < 0 or ball.rect.centerx > width:
+    if ball.rect.centerx < play_xpos or ball.rect.centerx > play_screen.rect.right:
         ball.dir = 180 - ball.dir
     # 천장과 충돌
-    if ball.rect.centery < 0:
+    if ball.rect.centery < play_ypos:
         ball.dir = -ball.dir
         if ball.speed < max_speed:
             ball.speed += 1
@@ -101,23 +121,27 @@ def main():
     keys = [False]*2
     lives = [heart]*3
 
-    font1 = pygame.font.SysFont("Impact", 80)
-    font2 = pygame.font.SysFont("Impact", 30)
-    font3 = pygame.font.SysFont("Impact", 23)
-    font4 =  pygame.font.SysFont("Impact", 40)
+    font1 = pygame.font.SysFont("Britannic", 80)
+    font2 = pygame.font.SysFont("Britannic", 30)
+    font3 = pygame.font.SysFont("Britannic", 23)
+    font4 =  pygame.font.SysFont("Britannic", 40)
+    font5 =  pygame.font.SysFont("Britannic", 50)
 
-    clear = Text("Cleared!!", MINT, font1, (width/2, height/2))
-    over = Text("Game Over!!", PINK, font1, (width/2, height/2))
-    replay = Text("Replay [Press spacebar]", WHITE, font2, (width/2, height/2 + 140))
-    tryagain = Text("Try Again!! [Press spacebar]", WHITE, font2, (width/2, height/2 + 100))
-    congrats = Text("Wow! Congratulations!", PINK, font4, (width/2, height/2 + 70))
+    clear = Text("Cleared!!", MINT, font1, (play_screen.rect.centerx, play_screen.rect.centery))
+    over = Text("Game Over!!", PINK, font1, (play_screen.rect.centerx, play_screen.rect.centery))
+    replay = Text("Replay [Press spacebar]", WHITE, font2, (play_screen.rect.centerx, play_screen.rect.centery + 140))
+    tryagain = Text("Try Again!! [Press spacebar]", WHITE, font2, (play_screen.rect.centerx, play_screen.rect.centery + 100))
+    congrats = Text("Wow! Congratulations!", PINK, font4, (play_screen.rect.centerx, play_screen.rect.centery + 70))
 
     # 0번째 원소 = 일반 블럭 컬러, 1번째 원소 = 특수 블럭 컬러
     colors = [(RED, RED2, YELLOW, GREEN, NAVY, NAVY2, BLUE, PURPLE), (OLIVE, SALMON)]
+    block_width, block_height = 100, 30 
+    block_xpos, block_ypos = 100, 100 # 좌측 상단 첫 번째 블록의 topleft 좌표
+    num_blocks = 6 # 한 줄에 깔리는 블록 수
     for ypos, color in enumerate(colors[0], start = 0):
-        # 한줄에 블록 다섯개로 고정
-        for xpos in range(0, 5):
-            blocks.append(Item(color, Rect(xpos*130, ypos*60 + 30, 80, 30)))
+        for xpos in range(0, num_blocks):
+            blocks.append(Item(color, Rect(xpos*(block_width + ((width-play_xpos*2)-(num_blocks*block_width))//(num_blocks-1)) + block_xpos 
+            , ypos*(block_height+30) + block_ypos, block_width, block_height)))
 
     # 특수 블록을 랜덤한 위치에 배치
     for color in colors[1]:
@@ -127,11 +151,21 @@ def main():
     running = True
     win = False
     while running:
-        screen.fill(0)
-        score_text = Text("score: " + str(score), WHITE, font2, (80, height - 30))
+        screen.fill(BLUE2)
+        play_screen.draw_rect()
+        box1.draw_rect()
+        box2.draw_rect()
+        box3.draw_rect()
+        screen.blit(score_img, (900, 20))
+        screen.blit(status, (900, 290))
+        screen.blit(controls, (900, 550))
+        score_text = Text(str(score), WHITE, font5, (box1.rect.centerx, box1.rect.centery))
         screen.blit(score_text.textrender, score_text.textrect)
+        imgRect = key_img.get_rect(center = (box3.rect.centerx, box3.rect.centery))
+        screen.blit(key_img, imgRect)
         for xpos, life in enumerate(lives, start = 1):
-            screen.blit(life, (width - life.get_width() * xpos, height - life.get_height()))
+            imgRect = life.get_rect(center = (box2.rect.left + 50*xpos, box2.rect.centery))
+            screen.blit(life, imgRect)
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -154,22 +188,22 @@ def main():
                 elif event.key == K_RIGHT:
                     keys[1] = False
         if keys[0]:
-            if paddle.rect.centerx > paddle.rect.width/2:
+            if paddle.rect.left > play_xpos:
                 paddle.rect.centerx -= 10
         elif keys[1]:
-            if paddle.rect.centerx < width - paddle.rect.width/2:
+            if paddle.rect.right < play_screen.rect.right:
                 paddle.rect.centerx += 10
 
         if lives:
-            if ball.rect.centery < 1000:
+            if ball.rect.centery < play_screen.rect.bottom + 400:
                 ball.move()
                 if len(blocks) == 0:
                     win = True
                     running = False
             else:
                 lives.pop()
-                ball.rect = Rect(300, 400, 20, 20)
-                ball.dir = random.randint(-45, 45) + 270
+                ball.rect = Rect(ball_startpos)
+                ball.dir = random.randint(-45, 45) + 270 # 여기 숫자를 변경하면 공이 리젠 되는 타이밍 늦출 수 있음
                 ball.speed = min_speed
                 ball.move()
         else:
@@ -177,6 +211,7 @@ def main():
 
         collide(colors[1])
         ball.draw_ellipse()
+        bottom_screen.draw_rect()
         paddle.draw_rect()
         for block in blocks:
             if block.color in colors[1]:
@@ -186,9 +221,11 @@ def main():
 
         for obstacle in obstacles:
             if obstacle.color == colors[1][0]:
-                screen.blit(blind, (1/2*(width - blind.get_width()), 1/2*(height - blind.get_height())))
+                imgRect = blind.get_rect(center = (play_screen.rect.centerx, play_screen.rect.centery))
+                screen.blit(blind, imgRect)
             elif obstacle.color == colors[1][1]:
-                screen.blit(blind2, (1/2*(width - blind2.get_width()), 1/2*(height - blind2.get_height())))
+                imgRect = blind2.get_rect(center = (play_screen.rect.centerx, play_screen.rect.centery))
+                screen.blit(blind2, imgRect)
         
         # 일정 시간이 지나면 장애물 제거
         for i in range(len(timers)):
@@ -201,7 +238,7 @@ def main():
         pygame.display.flip()
         fpsClock.tick(FPS)
 
-    screen.fill(0)
+    play_screen.draw_rect()
     record.append(score)
     if win:
         screen.blit(clear.textrender, clear.textrect)
@@ -210,8 +247,8 @@ def main():
     else:
         screen.blit(over.textrender, over.textrect)
         screen.blit(tryagain.textrender, tryagain.textrect)
-        current_score = Text("Current Score : " + str(score), MINT, font3, (width/2, height/2 + 180))
-        best_score = Text("Best Score : " + str(max(record)), YELLOW, font3, (width/2, height/2 + 220))
+        current_score = Text("Current Score : " + str(score), MINT, font3, (play_screen.rect.centerx, play_screen.rect.centery + 180))
+        best_score = Text("Best Score : " + str(max(record)), YELLOW, font3, (play_screen.rect.centerx, play_screen.rect.centery + 220))
         screen.blit(best_score.textrender, best_score.textrect)
         screen.blit(current_score.textrender, current_score.textrect)
     
@@ -225,8 +262,8 @@ while True:
             sys.exit()
         elif event.type == KEYDOWN and event.key == K_SPACE:
             blocks = []
-            paddle = Item(GRAY, Rect(300, 700, 150, 20))
-            ball = Ball(GRAY, Rect(300, 400, 20, 20))
+            paddle = Item(GRAY, Rect(paddle_startpos))
+            ball = Ball(GRAY, Rect(ball_startpos))
             score = 0
             timers = []
             obstacles = []
