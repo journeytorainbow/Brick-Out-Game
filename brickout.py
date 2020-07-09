@@ -109,10 +109,10 @@ def collide(colors):
         ball.dir = 90 + (paddle.rect.centerx - ball.rect.centerx) / paddle.rect.width * 80
     
     # 양 옆 벽면과 충돌
-    if ball.rect.centerx < play_xpos or ball.rect.centerx > play_screen.rect.right:
+    if ball.rect.left == play_screen.rect.left or ball.rect.right == play_screen.rect.right:
         ball.dir = 180 - ball.dir
     # 천장과 충돌
-    if ball.rect.centery < play_ypos:
+    if ball.rect.top == play_ypos:
         ball.dir = -ball.dir
         if ball.speed < max_speed:
             ball.speed += 1
@@ -196,7 +196,14 @@ def main():
 
         if lives:
             if ball.rect.centery < play_screen.rect.bottom + 400:
-                ball.move()
+                ball.move()                
+                if ball.rect.left < play_screen.rect.left:
+                    ball.rect.left = play_screen.rect.left
+                elif ball.rect.right > play_screen.rect.right:
+                    ball.rect.right = play_screen.rect.right
+                elif ball.rect.top < play_screen.rect.top:
+                    ball.rect.top = play_screen.rect.top
+                
                 if len(blocks) == 0:
                     win = True
                     running = False
