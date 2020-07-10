@@ -151,6 +151,7 @@ def main():
     replay = Text("Replay [Press spacebar]", WHITE, font2, (play_screen.rect.centerx, play_screen.rect.centery + 140))
     tryagain = Text("Try Again!! [Press spacebar]", WHITE, font2, (play_screen.rect.centerx, play_screen.rect.centery + 100))
     congrats = Text("Wow! Congratulations!", PINK, font4, (play_screen.rect.centerx, play_screen.rect.centery + 70))
+    pause_text = Text("Pause", YELLOW, font5, (play_screen.rect.centerx, play_screen.rect.centery))
 
     # 0번째 원소 = 일반 블럭 컬러, 1번째 원소 = 특수 블럭 컬러
     colors = [(RED, RED2, YELLOW, GREEN, NAVY, NAVY2, BLUE, PURPLE), (OLIVE, SALMON)]
@@ -167,6 +168,7 @@ def main():
         num = random.randint(0, 5*len(colors[0])-1)
         blocks[num].color = color
 
+    pause = False
     running = True
     win = False
     while running:
@@ -205,66 +207,74 @@ def main():
                     if ball.speed > min_speed:
                         ball.speed -= 1
                         displayed_speed -= 1
+                if event.key == K_p:
+                    pause = True
+                elif event.key == K_u:
+                    pause = False
             elif event.type == KEYUP:
                 if event.key == K_LEFT:
                     keys[0] = False
                 elif event.key == K_RIGHT:
                     keys[1] = False
-        if keys[0]:
-            if paddle.rect.left > play_xpos:
-                paddle.rect.centerx -= 10
-        elif keys[1]:
-            if paddle.rect.right < play_screen.rect.right:
-                paddle.rect.centerx += 10
 
-        if lives:
-            if ball.rect.centery < play_screen.rect.bottom + 400:
-                ball.move()                
-                if ball.rect.left < play_screen.rect.left:
-                    ball.rect.left = play_screen.rect.left
-                elif ball.rect.right > play_screen.rect.right:
-                    ball.rect.right = play_screen.rect.right
-                elif ball.rect.top < play_screen.rect.top:
-                    ball.rect.top = play_screen.rect.top
-                
-                if len(blocks) == 0:
-                    win = True
-                    running = False
+        if not pause:
+            if keys[0]:
+                if paddle.rect.left > play_xpos:
+                    paddle.rect.centerx -= 10
+            elif keys[1]:
+                if paddle.rect.right < play_screen.rect.right:
+                    paddle.rect.centerx += 10
+                    
+            if lives:
+                if ball.rect.centery < play_screen.rect.bottom + 400:
+                    ball.move()                
+                    if ball.rect.left < play_screen.rect.left:
+                        ball.rect.left = play_screen.rect.left
+                    elif ball.rect.right > play_screen.rect.right:
+                        ball.rect.right = play_screen.rect.right
+                    elif ball.rect.top < play_screen.rect.top:
+                        ball.rect.top = play_screen.rect.top
+                    
+                    if len(blocks) == 0:
+                        win = True
+                        running = False
+                else:
+                    lives.pop()
+                    ball.rect = Rect(ball_startpos)
+                    ball.dir = random.randint(-30, 30) + 270
+                    ball.speed = min_speed
+                    displayed_speed = 1
+                    ball.move()
             else:
-                lives.pop()
-                ball.rect = Rect(ball_startpos)
-                ball.dir = random.randint(-30, 30) + 270
-                ball.speed = min_speed
-                displayed_speed = 1
-                ball.move()
+                running = False
+
+            collide(colors[1])
+            ball.draw_ellipse()
+            bottom_screen.draw_rect()
+            paddle.draw_rect()
+            for block in blocks:
+                if block.color in colors[1]:
+                    block.draw_ellipse()
+                else:
+                    block.draw_rect()
+
+            for obstacle in obstacles:
+                if obstacle.color == colors[1][0]:
+                    imgRect = blind.get_rect(center = (play_screen.rect.centerx, play_screen.rect.centery))
+                    screen.blit(blind, imgRect)
+                elif obstacle.color == colors[1][1]:
+                    imgRect = blind2.get_rect(center = (play_screen.rect.centerx, play_screen.rect.centery))
+                    screen.blit(blind2, imgRect)
+            
+            # 일정 시간이 지나면 장애물 제거
+            for i in range(len(timers)):
+                timers[i] += 1
+            for timer in timers:
+                if timer >= 200:
+                    timers.remove(timer)
+                    obstacles.pop(0)
         else:
-            running = False
-
-        collide(colors[1])
-        ball.draw_ellipse()
-        bottom_screen.draw_rect()
-        paddle.draw_rect()
-        for block in blocks:
-            if block.color in colors[1]:
-                block.draw_ellipse()
-            else:
-                block.draw_rect()
-
-        for obstacle in obstacles:
-            if obstacle.color == colors[1][0]:
-                imgRect = blind.get_rect(center = (play_screen.rect.centerx, play_screen.rect.centery))
-                screen.blit(blind, imgRect)
-            elif obstacle.color == colors[1][1]:
-                imgRect = blind2.get_rect(center = (play_screen.rect.centerx, play_screen.rect.centery))
-                screen.blit(blind2, imgRect)
-        
-        # 일정 시간이 지나면 장애물 제거
-        for i in range(len(timers)):
-            timers[i] += 1
-        for timer in timers:
-            if timer >= 200:
-                timers.remove(timer)
-                obstacles.pop(0)
+            screen.blit(pause_text.textrender, pause_text.textrect)
 
         pygame.display.flip()
         fpsClock.tick(FPS)
