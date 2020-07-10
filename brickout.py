@@ -3,6 +3,7 @@ from pygame.locals import *
 
 pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.init()
+pygame.display.set_caption("Brick Out!!!")
 width, height = 850, 900 # 게임이 진행되는 실제 공간의 크기
 w, h = 1200, 1000 # 전체 화면 크기
 screen = pygame.display.set_mode((w, h))
