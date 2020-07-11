@@ -38,10 +38,10 @@ key_img = pygame.image.load("resources/images/keys.png")
 pygame.mixer.music.load("resources/audio/ContactHigh.wav")
 pygame.mixer.music.play(-1, 0.0)
 pygame.mixer.music.set_volume(0.3)
-hit1 = pygame.mixer.Sound("resources/audio/HitWood.wav") # 블록 충돌음
-hit2 = pygame.mixer.Sound("resources/audio/ChoppingLog.wav") # 벽면 충돌음
-hit3 = pygame.mixer.Sound("resources/audio/Pop.wav") # 패들 충돌음
-hit4 = pygame.mixer.Sound("resources/audio/Magic.wav") # 특수 블록 충돌음
+hit1 = pygame.mixer.Sound("resources/audio/HitWood.wav")  # 블록 충돌음
+hit2 = pygame.mixer.Sound("resources/audio/ChoppingLog.wav")  # 벽면 충돌음
+hit3 = pygame.mixer.Sound("resources/audio/Pop.wav")  # 패들 충돌음
+hit4 = pygame.mixer.Sound("resources/audio/Magic.wav")  # 특수 블록 충돌음
 
 hit3.set_volume(0.5)
 
