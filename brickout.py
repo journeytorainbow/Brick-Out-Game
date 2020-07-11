@@ -47,7 +47,6 @@ hit3.set_volume(0.5)
 
 max_speed = 14
 min_speed = 10
-displayed_speed = 1
 
 
 class Item:
@@ -94,56 +93,88 @@ box3 = Item(BLACK, Rect(box_xpos, box_ypos + 2*(box_height + 70), box_width, box
 # 백그라운드 화면 하단 가림용 사각형 객체
 bottom_screen = Item(BLUE2, Rect(0, play_screen.rect.bottom, w, h - play_screen.rect.bottom))
 
-blocks = []
-paddle_startpos = (450, 870, 150, 20)
-ball_startpos = (450, 650, 20, 20)
-paddle = Item(GRAY, Rect(paddle_startpos))
-ball = Ball(GRAY, Rect(ball_startpos))
-score = 0
 record = []
 obstacles = []
 timers = []  # 장애물 타이머
 
 
-def collide(colors):
-    global blocks, score, obstacles, timers, displayed_speed
-
+def collide_blocks(blocks, colors, score, ball):
     # 블록과 충돌
     prev_len = len(blocks)
     for block in blocks:
         if block.rect.colliderect(ball.rect):
             hit1.play()
             # 장애물 블록과 충돌
-            if block.color in colors:
-                obstacles.append(block)
-                timers.append(1)
-                hit4.play()
+            collide_obstacles(block, colors)
             blocks.remove(block)
 
     if len(blocks) != prev_len:
         ball.dir = -ball.dir
         score += 10
+    return blocks, score
 
-    # 패들과 충돌
+
+def collide_obstacles(block, colors):
+    if block.color in colors:
+        obstacles.append(block)
+        timers.append(1)
+        hit4.play()
+    return obstacles, timers
+
+
+def draw_obstacles(blocks, colors):
+    for block in blocks:
+        if block.color in colors[1]:
+            block.draw_ellipse()
+        else:
+            block.draw_rect()
+
+    for obstacle in obstacles:
+        if obstacle.color == colors[1][0]:
+            imgRect = blind.get_rect(center=(play_screen.rect.centerx, play_screen.rect.centery))
+            screen.blit(blind, imgRect)
+        elif obstacle.color == colors[1][1]:
+            imgRect = blind2.get_rect(center=(play_screen.rect.centerx, play_screen.rect.centery))
+            screen.blit(blind2, imgRect)
+
+    for i in range(len(timers)):
+        timers[i] += 1
+    for timer in timers:
+        if timer >= 200:
+            timers.remove(timer)
+            obstacles.pop(0)
+
+
+def collide_paddle(paddle, ball):
     if paddle.rect.colliderect(ball.rect):
         ball.dir = 90 + (paddle.rect.centerx - ball.rect.centerx) / paddle.rect.width * 80
         hit3.play()
 
-    # 양 옆 벽면과 충돌
+
+def collide_wall(displayed_speed, ball):
+    # 양 옆 벽면
     if ball.rect.left == play_screen.rect.left or ball.rect.right == play_screen.rect.right:
         ball.dir = 180 - ball.dir
         hit2.play()
-    # 천장과 충돌
+    # 천장
     if ball.rect.top == play_ypos:
         ball.dir = -ball.dir
         if ball.speed < max_speed:
             ball.speed += 1
             displayed_speed += 1
         hit2.play()
+    return displayed_speed
 
 
 def main():
-    global displayed_speed
+    blocks = []
+    displayed_speed = 1
+    paddle_startpos = (450, 870, 150, 20)
+    paddle = Item(GRAY, Rect(paddle_startpos))
+    ball_startpos = (450, 650, 20, 20)
+    ball = Ball(GRAY, Rect(ball_startpos))
+
+    score = 0
     keys = [False]*2
     lives = [heart]*3
 
@@ -255,31 +286,15 @@ def main():
             else:
                 running = False
 
-            collide(colors[1])
+            blocks, score = collide_blocks(blocks, colors[1], score, ball)
+            displayed_speed = collide_wall(displayed_speed, ball)
+            collide_paddle(paddle, ball)
+
             ball.draw_ellipse()
             bottom_screen.draw_rect()
             paddle.draw_rect()
-            for block in blocks:
-                if block.color in colors[1]:
-                    block.draw_ellipse()
-                else:
-                    block.draw_rect()
+            draw_obstacles(blocks, colors)
 
-            for obstacle in obstacles:
-                if obstacle.color == colors[1][0]:
-                    imgRect = blind.get_rect(center=(play_screen.rect.centerx, play_screen.rect.centery))
-                    screen.blit(blind, imgRect)
-                elif obstacle.color == colors[1][1]:
-                    imgRect = blind2.get_rect(center=(play_screen.rect.centerx, play_screen.rect.centery))
-                    screen.blit(blind2, imgRect)
-
-            # 일정 시간이 지나면 장애물 제거
-            for i in range(len(timers)):
-                timers[i] += 1
-            for timer in timers:
-                if timer >= 200:
-                    timers.remove(timer)
-                    obstacles.pop(0)
         else:
             screen.blit(pause_text.textrender, pause_text.textrect)
 
@@ -310,11 +325,6 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == KEYDOWN and event.key == K_SPACE:
-            blocks = []
-            paddle = Item(GRAY, Rect(paddle_startpos))
-            ball = Ball(GRAY, Rect(ball_startpos))
-            score = 0
             timers = []
             obstacles = []
-            displayed_speed = 1
             main()
