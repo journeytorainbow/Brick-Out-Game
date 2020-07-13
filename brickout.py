@@ -166,6 +166,45 @@ def collide_wall(displayed_speed, ball):
     return displayed_speed
 
 
+def check_event(keys, ball, displayed_speed, pause):
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == KEYDOWN:
+            if event.key == K_LEFT:
+                keys[0] = True
+            elif event.key == K_RIGHT:
+                keys[1] = True
+            if event.key == K_f:
+                if ball.speed < max_speed - 1:
+                    ball.speed += 1
+                    displayed_speed += 1
+            elif event.key == K_d:
+                if ball.speed > min_speed:
+                    ball.speed -= 1
+                    displayed_speed -= 1
+            if event.key == K_p:
+                pause = True
+            elif event.key == K_u:
+                pause = False
+        elif event.type == KEYUP:
+            if event.key == K_LEFT:
+                keys[0] = False
+            elif event.key == K_RIGHT:
+                keys[1] = False
+    return displayed_speed, pause
+
+
+def check_keys(keys, paddle):
+    if keys[0]:
+        if paddle.rect.left > play_xpos:
+            paddle.rect.centerx -= 10
+    elif keys[1]:
+        if paddle.rect.right < play_screen.rect.right:
+            paddle.rect.centerx += 10
+
+
 def main():
     blocks = []
     displayed_speed = 1
@@ -228,40 +267,10 @@ def main():
             imgRect = life.get_rect(center=(box2.rect.left + 50*xpos, box2.rect.centery))
             screen.blit(life, imgRect)
 
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == KEYDOWN:
-                if event.key == K_LEFT:
-                    keys[0] = True
-                elif event.key == K_RIGHT:
-                    keys[1] = True
-                if event.key == K_f:
-                    if ball.speed < max_speed - 1:
-                        ball.speed += 1
-                        displayed_speed += 1
-                elif event.key == K_d:
-                    if ball.speed > min_speed:
-                        ball.speed -= 1
-                        displayed_speed -= 1
-                if event.key == K_p:
-                    pause = True
-                elif event.key == K_u:
-                    pause = False
-            elif event.type == KEYUP:
-                if event.key == K_LEFT:
-                    keys[0] = False
-                elif event.key == K_RIGHT:
-                    keys[1] = False
+        displayed_speed, pause = check_event(keys, ball, displayed_speed, pause)
 
         if not pause:
-            if keys[0]:
-                if paddle.rect.left > play_xpos:
-                    paddle.rect.centerx -= 10
-            elif keys[1]:
-                if paddle.rect.right < play_screen.rect.right:
-                    paddle.rect.centerx += 10
+            check_keys(keys, paddle)
 
             if lives:
                 if ball.rect.centery < play_screen.rect.bottom + 400:
