@@ -111,7 +111,7 @@ def collide_blocks(blocks, colors, score, ball):
     if len(blocks) != prev_len:
         ball.dir = -ball.dir
         score += 10
-    return blocks, score
+    return score
 
 
 def collide_obstacles(block, colors):
@@ -295,7 +295,8 @@ def main():
             else:
                 running = False
 
-            blocks, score = collide_blocks(blocks, colors[1], score, ball)
+            score = collide_blocks(blocks, colors[1], score, ball)
+            collide_blocks(blocks, colors[1], score, ball)
             displayed_speed = collide_wall(displayed_speed, ball)
             collide_paddle(paddle, ball)
 
