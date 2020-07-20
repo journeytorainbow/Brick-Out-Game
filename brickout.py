@@ -257,6 +257,20 @@ def place_blocks(block_colors, blocks):
         blocks[num].color = color
 
 
+def check_win(win, score):
+    if win:
+        screen.blit(clear.textrender, clear.textrect)
+        screen.blit(replay.textrender, replay.textrect)
+        screen.blit(congrats.textrender, congrats.textrect)
+    else:
+        screen.blit(over.textrender, over.textrect)
+        screen.blit(tryagain.textrender, tryagain.textrect)
+        current_score = Text("Current Score : " + str(score), MINT, font3, (play_screen.rect.centerx, play_screen.rect.centery + 180))
+        best_score = Text("Best Score : " + str(max(record)), YELLOW, font3, (play_screen.rect.centerx, play_screen.rect.centery + 220))
+        screen.blit(best_score.textrender, best_score.textrect)
+        screen.blit(current_score.textrender, current_score.textrect)
+
+
 def main():
     blocks = []
     displayed_speed = 1
@@ -330,17 +344,7 @@ def main():
 
     play_screen.draw_rect()
     record.append(score)
-    if win:
-        screen.blit(clear.textrender, clear.textrect)
-        screen.blit(replay.textrender, replay.textrect)
-        screen.blit(congrats.textrender, congrats.textrect)
-    else:
-        screen.blit(over.textrender, over.textrect)
-        screen.blit(tryagain.textrender, tryagain.textrect)
-        current_score = Text("Current Score : " + str(score), MINT, font3, (play_screen.rect.centerx, play_screen.rect.centery + 180))
-        best_score = Text("Best Score : " + str(max(record)), YELLOW, font3, (play_screen.rect.centerx, play_screen.rect.centery + 220))
-        screen.blit(best_score.textrender, best_score.textrect)
-        screen.blit(current_score.textrender, current_score.textrect)
+    check_win(win, score)
 
     pygame.display.flip()
 
