@@ -242,6 +242,21 @@ def reset_ball(ball, ball_startpos, displayed_speed):
     return displayed_speed
 
 
+def place_blocks(colors, blocks):
+    block_width, block_height = 100, 30
+    block_xpos, block_ypos = 100, 100  # 좌측 상단 첫 번째 블록의 topleft 좌표
+    num_blocks = 6  # 한 줄에 깔리는 블록 수
+    for ypos, color in enumerate(colors[0], start=0):
+        for xpos in range(0, num_blocks):
+            blocks.append(Item(color, Rect(xpos*(block_width + ((width-play_xpos*2)-(num_blocks*block_width))//(num_blocks-1)) + block_xpos,
+            ypos*(block_height+30) + block_ypos, block_width, block_height)))
+
+    # 특수 블록을 랜덤한 위치에 배치
+    for color in colors[1]:
+        num = random.randint(0, 5*len(colors[0])-1)
+        blocks[num].color = color
+
+
 def main():
     blocks = []
     displayed_speed = 1
@@ -256,18 +271,7 @@ def main():
 
     # 0번째 원소 = 일반 블럭 컬러, 1번째 원소 = 특수 블럭 컬러
     colors = [(RED, RED2, YELLOW, GREEN, NAVY, NAVY2, BLUE, PURPLE), (OLIVE, SALMON)]
-    block_width, block_height = 100, 30
-    block_xpos, block_ypos = 100, 100  # 좌측 상단 첫 번째 블록의 topleft 좌표
-    num_blocks = 6  # 한 줄에 깔리는 블록 수
-    for ypos, color in enumerate(colors[0], start=0):
-        for xpos in range(0, num_blocks):
-            blocks.append(Item(color, Rect(xpos*(block_width + ((width-play_xpos*2)-(num_blocks*block_width))//(num_blocks-1)) + block_xpos,
-            ypos*(block_height+30) + block_ypos, block_width, block_height)))
-
-    # 특수 블록을 랜덤한 위치에 배치
-    for color in colors[1]:
-        num = random.randint(0, 5*len(colors[0])-1)
-        blocks[num].color = color
+    place_blocks(colors, blocks)
 
     pause = False
     running = True
