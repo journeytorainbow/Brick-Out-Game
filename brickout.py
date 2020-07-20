@@ -352,7 +352,7 @@ def main():
     pygame.display.flip()
 
 
-def replay():
+def replay_game():
     global timers, obstacles
     while True:
         for event in pygame.event.get():
@@ -366,4 +366,4 @@ def replay():
 
 
 main()
-replay()
+replay_game()
