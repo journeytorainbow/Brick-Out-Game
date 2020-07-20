@@ -205,6 +205,30 @@ def check_keys(keys, paddle):
             paddle.rect.centerx += 10
 
 
+def check_ball_pos(ball):
+    if ball.rect.left < play_screen.rect.left:
+        ball.rect.left = play_screen.rect.left
+    elif ball.rect.right > play_screen.rect.right:
+        ball.rect.right = play_screen.rect.right
+    elif ball.rect.top < play_screen.rect.top:
+        ball.rect.top = play_screen.rect.top
+
+
+def check_block_nums(blocks, win, running):
+    if len(blocks) == 0:
+        win = True
+        running = False
+    return win, running
+
+
+def reset_ball(ball, ball_startpos, displayed_speed):
+    ball.rect = Rect(ball_startpos)
+    ball.dir = random.randint(-30, 30) + 270
+    ball.speed = min_speed
+    displayed_speed = 1
+    return displayed_speed
+
+
 def main():
     blocks = []
     displayed_speed = 1
@@ -275,22 +299,11 @@ def main():
             if lives:
                 if ball.rect.centery < play_screen.rect.bottom + 400:
                     ball.move()                
-                    if ball.rect.left < play_screen.rect.left:
-                        ball.rect.left = play_screen.rect.left
-                    elif ball.rect.right > play_screen.rect.right:
-                        ball.rect.right = play_screen.rect.right
-                    elif ball.rect.top < play_screen.rect.top:
-                        ball.rect.top = play_screen.rect.top
-
-                    if len(blocks) == 0:
-                        win = True
-                        running = False
+                    check_ball_pos(ball)
+                    win, running = check_block_nums(blocks, win, running)
                 else:
                     lives.pop()
-                    ball.rect = Rect(ball_startpos)
-                    ball.dir = random.randint(-30, 30) + 270
-                    ball.speed = min_speed
-                    displayed_speed = 1
+                    displayed_speed = reset_ball(ball, ball_startpos, displayed_speed)
                     ball.move()
             else:
                 running = False
