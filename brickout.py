@@ -271,6 +271,26 @@ def check_win(win, score):
         screen.blit(current_score.textrender, current_score.textrect)
 
 
+def draw_display(score, displayed_speed, lives):
+    screen.fill(BLUE2)
+    play_screen.draw_rect()
+    box1.draw_rect()
+    box2.draw_rect()
+    box3.draw_rect()
+    screen.blit(score_img, (900, 20))
+    screen.blit(status, (900, 290))
+    screen.blit(controls, (900, 550))
+    score_text = Text(str(score), WHITE, font5, (box1.rect.centerx, box1.rect.centery))
+    screen.blit(score_text.textrender, score_text.textrect)
+    speed_text = Text("Speed : " + str(displayed_speed), YELLOW, font3, (box2.rect.centerx, box2.rect.centery + 40))
+    screen.blit(speed_text.textrender, speed_text.textrect)
+    imgRect = key_img.get_rect(center=(box3.rect.centerx, box3.rect.centery))
+    screen.blit(key_img, imgRect)
+    for xpos, life in enumerate(lives, start=1):
+        imgRect = life.get_rect(center=(box2.rect.left + 50*xpos, box2.rect.centery))
+        screen.blit(life, imgRect)
+
+
 def main():
     blocks = []
     displayed_speed = 1
@@ -291,24 +311,7 @@ def main():
     running = True
     win = False
     while running:
-        screen.fill(BLUE2)
-        play_screen.draw_rect()
-        box1.draw_rect()
-        box2.draw_rect()
-        box3.draw_rect()
-        screen.blit(score_img, (900, 20))
-        screen.blit(status, (900, 290))
-        screen.blit(controls, (900, 550))
-        score_text = Text(str(score), WHITE, font5, (box1.rect.centerx, box1.rect.centery))
-        screen.blit(score_text.textrender, score_text.textrect)
-        speed_text = Text("Speed : " + str(displayed_speed), YELLOW, font3, (box2.rect.centerx, box2.rect.centery + 40))
-        screen.blit(speed_text.textrender, speed_text.textrect)
-        imgRect = key_img.get_rect(center=(box3.rect.centerx, box3.rect.centery))
-        screen.blit(key_img, imgRect)
-        for xpos, life in enumerate(lives, start=1):
-            imgRect = life.get_rect(center=(box2.rect.left + 50*xpos, box2.rect.centery))
-            screen.blit(life, imgRect)
-
+        draw_display(score, displayed_speed, lives)
         displayed_speed, pause = check_event(keys, ball, displayed_speed, pause)
 
         if not pause:
