@@ -27,6 +27,12 @@ SALMON = (204, 153, 153)
 BLUE2 = (70, 70, 255)  # 게임 백그라운드 컬러
 BLACK = (0, 0, 0)  # 게임이 진행되는 실제 화면 컬러
 
+font1 = pygame.font.SysFont("Britannic", 80)
+font2 = pygame.font.SysFont("Britannic", 30)
+font3 = pygame.font.SysFont("Britannic", 23)
+font4 = pygame.font.SysFont("Britannic", 40)
+font5 = pygame.font.SysFont("Britannic", 50)
+
 heart = pygame.image.load("resources/images/heart.png")
 blind = pygame.image.load("resources/images/blind.png")
 blind2 = pygame.image.load("resources/images/blind2.png")
@@ -92,6 +98,13 @@ box2 = Item(BLACK, Rect(box_xpos, (box_ypos + box_height) + 70, box_width, box_h
 box3 = Item(BLACK, Rect(box_xpos, box_ypos + 2*(box_height + 70), box_width, box_height))
 # 백그라운드 화면 하단 가림용 사각형 객체
 bottom_screen = Item(BLUE2, Rect(0, play_screen.rect.bottom, w, h - play_screen.rect.bottom))
+
+clear = Text("Cleared!!", MINT, font1, (play_screen.rect.centerx, play_screen.rect.centery))
+over = Text("Game Over!!", PINK, font1, (play_screen.rect.centerx, play_screen.rect.centery))
+replay = Text("Replay [Press spacebar]", WHITE, font2, (play_screen.rect.centerx, play_screen.rect.centery + 140))
+tryagain = Text("Try Again!! [Press spacebar]", WHITE, font2, (play_screen.rect.centerx, play_screen.rect.centery + 100))
+congrats = Text("Wow! Congratulations!", PINK, font4, (play_screen.rect.centerx, play_screen.rect.centery + 70))
+pause_text = Text("Pause", YELLOW, font5, (play_screen.rect.centerx, play_screen.rect.centery))
 
 record = []
 obstacles = []
@@ -240,19 +253,6 @@ def main():
     score = 0
     keys = [False]*2
     lives = [heart]*3
-
-    font1 = pygame.font.SysFont("Britannic", 80)
-    font2 = pygame.font.SysFont("Britannic", 30)
-    font3 = pygame.font.SysFont("Britannic", 23)
-    font4 = pygame.font.SysFont("Britannic", 40)
-    font5 = pygame.font.SysFont("Britannic", 50)
-
-    clear = Text("Cleared!!", MINT, font1, (play_screen.rect.centerx, play_screen.rect.centery))
-    over = Text("Game Over!!", PINK, font1, (play_screen.rect.centerx, play_screen.rect.centery))
-    replay = Text("Replay [Press spacebar]", WHITE, font2, (play_screen.rect.centerx, play_screen.rect.centery + 140))
-    tryagain = Text("Try Again!! [Press spacebar]", WHITE, font2, (play_screen.rect.centerx, play_screen.rect.centery + 100))
-    congrats = Text("Wow! Congratulations!", PINK, font4, (play_screen.rect.centerx, play_screen.rect.centery + 70))
-    pause_text = Text("Pause", YELLOW, font5, (play_screen.rect.centerx, play_screen.rect.centery))
 
     # 0번째 원소 = 일반 블럭 컬러, 1번째 원소 = 특수 블럭 컬러
     colors = [(RED, RED2, YELLOW, GREEN, NAVY, NAVY2, BLUE, PURPLE), (OLIVE, SALMON)]
