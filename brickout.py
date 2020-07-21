@@ -118,21 +118,16 @@ def collide_blocks(blocks, colors, score, ball):
         if block.rect.colliderect(ball.rect):
             hit1.play()
             # 장애물 블록과 충돌
-            collide_obstacles(block, colors)
+            if block.color in colors:
+                obstacles.append(block)
+                timers.append(1)
+                hit4.play()
             blocks.remove(block)
 
     if len(blocks) != prev_len:
         ball.dir = -ball.dir
         score += 10
     return score
-
-
-def collide_obstacles(block, colors):
-    if block.color in colors:
-        obstacles.append(block)
-        timers.append(1)
-        hit4.play()
-    return obstacles, timers
 
 
 def draw_obstacles(blocks, colors):
@@ -330,7 +325,6 @@ def main():
                 running = False
 
             score = collide_blocks(blocks, block_colors[1], score, ball)
-            collide_blocks(blocks, block_colors[1], score, ball)
             displayed_speed = collide_wall(displayed_speed, ball)
             collide_paddle(paddle, ball)
 
